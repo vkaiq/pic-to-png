@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7fb">
+    <title>حوّل صورتك إلى رابط PNG</title>
+    <style>
+        :root {
+            color-scheme: light;
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            color: #172033;
+            background: #f5f7fb;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 32px 16px;
+            background:
+                radial-gradient(ellipse at 50% 0%, #e8edff 0, transparent 48%),
+                #f5f7fb;
+        }
+
+        main {
+            width: min(100%, 560px);
+            padding: clamp(24px, 6vw, 44px);
+            border: 1px solid #e8ebf2;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgb(30 47 89 / 9%);
+        }
+
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 18px;
+            border-radius: 18px;
+            color: #fff;
+            background: linear-gradient(145deg, #725cf5, #4b75ee);
+        }
+
+        .brand-icon svg { width: 29px; height: 29px; }
+
+        h1 {
+            margin: 0;
+            text-align: center;
+            font-size: clamp(25px, 5vw, 32px);
+            letter-spacing: -.6px;
+        }
+
+        .intro {
+            margin: 12px 0 28px;
+            color: #68738a;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .drop-zone {
+            min-height: 212px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            border: 2px dashed #cbd3e4;
+            border-radius: 18px;
+            background: #fafbfe;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease;
+        }
+
+        .drop-zone:hover, .drop-zone.is-dragging {
+            border-color: #6a64ed;
+            background: #f5f4ff;
+        }
+
+        .drop-zone:focus-within {
+            outline: 3px solid rgb(106 100 237 / 24%);
+            outline-offset: 3px;
+        }
+
+        .upload-icon {
+            width: 44px;
+            height: 44px;
+            margin-bottom: 12px;
+            color: #685fec;
+        }
+
+        .drop-title { font-size: 17px; font-weight: 700; }
+        .drop-hint { margin-top: 8px; color: #7b8498; font-size: 14px; }
+        #image-input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+
+        .file-info {
+            display: none;
+            align-items: center;
+            gap: 14px;
+            margin-top: 18px;
+            padding: 12px;
+            border: 1px solid #e8ebf2;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .file-info.is-visible { display: flex; }
+
+        .preview {
+            width: 58px;
+            height: 58px;
+            flex: 0 0 58px;
+            border-radius: 10px;
+            background: #f0f2f8;
+            object-fit: cover;
+        }
+
+        .file-meta { min-width: 0; }
+        .file-name { overflow: hidden; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+        .file-size { margin-top: 5px; color: #7b8498; font-size: 13px; }
+
+        .upload-button, .copy-button {
+            min-height: 48px;
+            border: 0;
+            border-radius: 12px;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity .18s ease, transform .18s ease;
+        }
+
+        .upload-button {
+            width: 100%;
+            margin-top: 18px;
+            color: #fff;
+            background: linear-gradient(100deg, #695cf0, #5275ed);
+            box-shadow: 0 8px 18px rgb(93 99 235 / 22%);
+        }
+
+        .upload-button:hover:not(:disabled), .copy-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .upload-button:disabled, .copy-button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .status {
+            min-height: 24px;
+            margin: 15px 0 0;
+            color: #68738a;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        .status.error { color: #bd3434; }
+        .status.success { color: #21804d; }
+
+        .result {
+            display: none;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .result.is-visible { display: block; }
+        .result label { display: block; margin-bottom: 9px; font-weight: 700; }
+
+        .link-row { display: flex; gap: 8px; }
+
+        .link-field {
+            min-width: 0;
+            flex: 1;
+            padding: 0 12px;
+            border: 1px solid #dce1ec;
+            border-radius: 10px;
+            color: #4b5b78;
+            background: #fafbfe;
+            direction: ltr;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        .copy-button { padding: 0 16px; color: #fff; background: #27334d; }
+
+        .footnote {
+            margin: 22px 0 0;
+            color: #8a92a4;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 420px) {
+            .link-row { flex-direction: column; }
+            .link-field { min-height: 46px; }
+            .copy-button { min-height: 44px; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+                <path d="M4 16.5v2A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-2M12 15V4m0 0L8 8m4-4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <h1>حوّل صورتك إلى رابط PNG</h1>
+        <p class="intro">ارفع صورتك وسنحوّلها إلى PNG وننشئ لك رابطًا مباشرًا لمشاركتها.</p>
+
+        <label class="drop-zone" id="drop-zone" for="image-input">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M4 16.5v2A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5v-2M12 15V4m0 0L8 8m4-4 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="drop-title">اسحب الصورة إلى هنا</span>
+            <span class="drop-hint">أو اضغط لاختيار صورة من جهازك</span>
+            <input id="image-input" type="file" accept="image/*" aria-label="اختر صورة">
+        </label>
+
+        <div class="file-info" id="file-info">
+            <img class="preview" id="preview" alt="معاينة الصورة المختارة">
+            <div class="file-meta">
+                <div class="file-name" id="file-name"></div>
+                <div class="file-size" id="file-size"></div>
+            </div>
+        </div>
+
+        <button class="upload-button" id="upload-button" type="button" disabled>إنشاء رابط PNG</button>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+
+        <section class="result" id="result" aria-label="رابط الصورة">
+            <label for="image-link">رابط الصورة المباشر</label>
+            <div class="link-row">
+                <input class="link-field" id="image-link" type="text" readonly>
+                <button class="copy-button" id="copy-button" type="button">نسخ الرابط</button>
+            </div>
+        </section>
+
+        <p class="footnote">يتم تحويل الصور إلى PNG قبل رفعها. الحد الأقصى لحجم الصورة بعد التحويل 20 ميغابايت.</p>
+    </main>
+
+    <script>
+        const input = document.getElementById('image-input');
+        const dropZone = document.getElementById('drop-zone');
+        const fileInfo = document.getElementById('file-info');
+        const preview = document.getElementById('preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const uploadButton = document.getElementById('upload-button');
+        const status = document.getElementById('status');
+        const result = document.getElementById('result');
+        const imageLink = document.getElementById('image-link');
+        const copyButton = document.getElementById('copy-button');
+        let selectedFile = null;
+        let previewUrl = null;
+
+        function setStatus(message, type = '') {
+            status.textContent = message;
+            status.className = `status${type ? ` ${type}` : ''}`;
+        }
+
+        function formatSize(bytes) {
+            return bytes < 1024 * 1024
+                ? `${(bytes / 1024).toFixed(0)} كيلوبايت`
+                : `${(bytes / (1024 * 1024)).toFixed(1)} ميغابايت`;
+        }
+
+        function chooseFile(file) {
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                setStatus('الرجاء اختيار ملف صورة صالح.', 'error');
+                return;
+            }
+
+            selectedFile = file;
+            if (previewUrl) URL.revokeObjectURL(previewUrl);
+            previewUrl = URL.createObjectURL(file);
+            preview.src = previewUrl;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatSize(file.size);
+            fileInfo.classList.add('is-visible');
+            uploadButton.disabled = false;
+            result.classList.remove('is-visible');
+            setStatus('');
+        }
+
+        function convertToPng(file) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                const sourceUrl = URL.createObjectURL(file);
+                image.onload = () => {
+                    URL.revokeObjectURL(sourceUrl);
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.naturalWidth;
+                        canvas.height = image.naturalHeight;
+                        const context = canvas.getContext('2d');
+                        if (!context) {
+                            reject(new Error('تعذر تجهيز الصورة للتحويل.'));
+                            return;
+                        }
+                        context.drawImage(image, 0, 0);
+                        canvas.toBlob((blob) => {
+                            if (blob) resolve(blob);
+                            else reject(new Error('تعذر تحويل الصورة إلى PNG.'));
+                        }, 'image/png');
+                    } catch {
+                        reject(new Error('تعذر تحويل الصورة إلى PNG.'));
+                    }
+                };
+                image.onerror = () => {
+                    URL.revokeObjectURL(sourceUrl);
+                    reject(new Error('تعذر قراءة الصورة المختارة.'));
+                };
+                image.src = sourceUrl;
+            });
+        }
+
+        input.addEventListener('change', () => chooseFile(input.files[0]));
+
+        for (const eventName of ['dragenter', 'dragover']) {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.add('is-dragging');
+            });
+        }
+
+        for (const eventName of ['dragleave', 'drop']) {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.remove('is-dragging');
+            });
+        }
+
+        dropZone.addEventListener('drop', (event) => chooseFile(event.dataTransfer.files[0]));
+
+        uploadButton.addEventListener('click', async () => {
+            if (!selectedFile || uploadButton.disabled) return;
+            uploadButton.disabled = true;
+            setStatus('جارٍ تحويل الصورة ورفعها…');
+            result.classList.remove('is-visible');
+
+            try {
+                const png = await convertToPng(selectedFile);
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'image/png',
+                        'X-File-Name': encodeURIComponent(selectedFile.name)
+                    },
+                    body: png
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'تعذر رفع الصورة.');
+
+                imageLink.value = data.url;
+                result.classList.add('is-visible');
+                setStatus('تم رفع الصورة بنجاح!', 'success');
+            } catch (error) {
+                setStatus(error.message || 'حدث خطأ أثناء رفع الصورة؛ حاول مرة أخرى.', 'error');
+            } finally {
+                uploadButton.disabled = false;
+            }
+        });
+
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(imageLink.value);
+                copyButton.textContent = 'تم النسخ';
+                setTimeout(() => { copyButton.textContent = 'نسخ الرابط'; }, 1800);
+            } catch {
+                imageLink.select();
+                const copied = document.execCommand('copy');
+                if (copied) {
+                    copyButton.textContent = 'تم النسخ';
+                    setTimeout(() => { copyButton.textContent = 'نسخ الرابط'; }, 1800);
+                } else {
+                    setStatus('تعذر نسخ الرابط تلقائيًا؛ حدده وانسخه يدويًا.', 'error');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
