@@ -261,6 +261,9 @@
         const result = document.getElementById('result');
         const imageLink = document.getElementById('image-link');
         const copyButton = document.getElementById('copy-button');
+        const UPLOAD_API_URL = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+            ? '/api/upload'
+            : 'https://YOUR-WORKER.workers.dev/api/upload';
         let selectedFile = null;
         let previewUrl = null;
 
@@ -351,8 +354,11 @@
             result.classList.remove('is-visible');
 
             try {
+                if (UPLOAD_API_URL.includes('YOUR-WORKER')) {
+                    throw new Error('لم يتم إعداد رابط خدمة الرفع بعد. راجع تعليمات README.');
+                }
                 const png = await convertToPng(selectedFile);
-                const response = await fetch('/api/upload', {
+                const response = await fetch(UPLOAD_API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'image/png',
@@ -360,6 +366,9 @@
                     },
                     body: png
                 });
+                if (!response.headers.get('content-type')?.includes('application/json')) {
+                    throw new Error('خدمة الرفع أعادت صفحة HTML بدل JSON. تحقق من رابط Cloudflare Worker وإعداده.');
+                }
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || 'تعذر رفع الصورة.');
 
