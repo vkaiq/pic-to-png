@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#f5f7fb">
+    <meta name="theme-color" content="#f5f7fb">     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; object-src 'none'; form-action 'none'; frame-src 'none'; script-src 'sha256-bGdiyVt5vlLC1qR0CTWVYiXBvem09bfcrq5B4/Vk4ho='; script-src-attr 'none'; style-src 'sha256-6CCfVMrygcy2S+jocBYi92HMcU9kElX8U/IlXLAWogg='; style-src-attr 'none'; img-src 'self' blob:; connect-src 'self' https://pic-to-png-upload.waleed-fk-t9.workers.dev; font-src 'self'; upgrade-insecure-requests">     <meta name="referrer" content="no-referrer">
     <title>حوّل صورتك إلى رابط PNG</title>
     <style>
         :root {
@@ -362,7 +362,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'image/png',
-                        'X-File-Name': encodeURIComponent(selectedFile.name)
+                        
                     },
                     body: png
                 });
